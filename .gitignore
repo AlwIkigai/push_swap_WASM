@@ -1,0 +1,44 @@
+# =========================
+# Native build outputs
+# =========================
+*.o
+*.a
+push_swap
+checker
+checker_linux
+
+# =========================
+# WASM build outputs (CI-only)
+# =========================
+wasm/obj/
+wasm/*.wasm
+wasm/*.js
+wasm/*.mjs
+wasm/*.data
+wasm/*.map
+wasm/*.html
+wasm/manifest.json
+
+# Sub-lib WASM artifacts
+libft/libft_wasm.a
+libft/obj_wasm/
+ft_printf/ft_printf_wasm.a
+ft_printf/obj_wasm/
+
+# Local WASM test helpers
+wasm/test_node.mjs
+wasm/runner.cjs
+
+# =========================
+# Emscripten SDK / cache
+# =========================
+emsdk/
+**/.emscripten_cache/
+**/.cache/emscripten/
+
+# =========================
+# IDE / OS noise
+# =========================
+.vscode/
+.DS_Store
+*.log
