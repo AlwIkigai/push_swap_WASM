@@ -2,62 +2,37 @@ name: Build WASM + Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
-
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup Emscripten
-        uses: mymindstorm/setup-emsdk@v14
-        with:
-          version: latest
-
-      - name: Verify emcc
+      - name: Install Emscripten
         run: |
-          emcc -v
-          which emcc
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+          echo "$(pwd)" >> $GITHUB_PATH
+          echo "$(pwd)/upstream/emscripten" >> $GITHUB_PATH
 
-      # TODO: Replace this with YOUR build command
-      # e.g. make wasm / ./build.sh / etc
       - name: Build WASM
-        run: |
-          make
-
-      # TODO: Replace "dist" with the folder containing your final site files:
-      # index.html + .js + .wasm (+ assets)
-      - name: Prepare site folder
-        run: |
-          mkdir -p dist
-          # Example: if your built site is already in ./web
-          # cp -r web/* dist/
-          # Or if it is in ./public
-          # cp -r public/* dist/
+        run: make wasm
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: wasm
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
       - name: Deploy to GitHub Pages
-        id: deployment
         uses: actions/deploy-pages@v4
