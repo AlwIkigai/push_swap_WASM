@@ -112,14 +112,16 @@ $(WASM_WASM): $(WASM_JS)
 $(MANIFEST): $(WASM_JS)
 	@tmp=$$(mktemp); \
 	printf '{\n' > $$tmp; \
+	printf '  "schema": 1,\n' >> $$tmp; \
 	printf '  "project": "push_swap",\n' >> $$tmp; \
-	printf '  "entry": "wasm_entry",\n' >> $$tmp; \
+	printf '  "artifact": "1.0.0",\n' >> $$tmp; \
 	printf '  "js": "push_swap.js",\n' >> $$tmp; \
 	printf '  "wasm": "push_swap.wasm",\n' >> $$tmp; \
-	printf '  "version": 1\n' >> $$tmp; \
+	printf '  "entry": "wasm_entry"\n' >> $$tmp; \
 	printf '}\n' >> $$tmp; \
 	if [ -f $(MANIFEST) ] && cmp -s $$tmp $(MANIFEST); then rm -f $$tmp; \
 	else mv $$tmp $(MANIFEST); fi
+
 
 # ---- Cleaning ---------------------------------------------------------------
 
