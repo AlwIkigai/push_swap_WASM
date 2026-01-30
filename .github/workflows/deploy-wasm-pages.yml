@@ -3,36 +3,82 @@ name: Build WASM + Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install Emscripten
+      - name: Install Emscripten (pinned)
+        shell: bash
         run: |
-          git clone https://github.com/emscripten-core/emsdk.git
+          set -euxo pipefail
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git
           cd emsdk
-          ./emsdk install latest
-          ./emsdk activate latest
-          echo "$(pwd)" >> $GITHUB_PATH
-          echo "$(pwd)/upstream/emscripten" >> $GITHUB_PATH
+          ./emsdk install 3.1.57
+          ./emsdk activate 3.1.57
 
       - name: Build WASM
-        run: make wasm
+        shell: bash
+        run: |
+          set -euxo pipefail
+          source ./emsdk/emsdk_env.sh
+
+          echo "== emcc sanity =="
+          which emcc
+          emcc -v
+
+          make wasm
+
+          echo "== wasm output =="
+          ls -lah wasm
+
+      - name: Validate WASM manifest (schema v1)
+        shell: bash
+        run: |
+          set -euxo pipefail
+          test -f wasm/manifest.json
+          node -e "
+            const fs = require('fs');
+            const m = JSON.parse(fs.readFileSync('wasm/manifest.json', 'utf8'));
+            const required = ['schema', 'project', 'js', 'wasm', 'entry'];
+            for (const k of required) {
+              if (m[k] === undefined || m[k] === null || m[k] === '') {
+                throw new Error('Missing manifest field: ' + k);
+              }
+            }
+            if (m.schema !== 1) {
+              throw new Error('Unsupported manifest schema: ' + m.schema);
+            }
+            console.log('manifest ok:', m);
+          "
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: wasm
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
