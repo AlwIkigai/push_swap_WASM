@@ -99,7 +99,8 @@ $(WASM_JS): $(WASM_LIBFT) $(WASM_PRINTF) $(WASM_OBJS)
 		$(WASM_OBJS) $(WASM_LIBFT) $(WASM_PRINTF) \
 		-o $(WASM_JS) \
 		-s MODULARIZE=1 \
-		-s EXPORT_ES6=0 \
+		-s EXPORT_NAME=createPushSwapModule \
+		-s EXPORT_ES6=1 \
 		-s ENVIRONMENT=web,node \
 		-s EXPORTED_FUNCTIONS="['_wasm_entry','_malloc','_free','_main']" \
 		-s EXPORTED_RUNTIME_METHODS="['UTF8ToString','stringToUTF8','lengthBytesUTF8']" \
