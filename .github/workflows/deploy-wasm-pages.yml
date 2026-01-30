@@ -1,0 +1,49 @@
+name: Build WASM + Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Emscripten SDK
+        uses: emscripten-core/emsdk@v3
+        with:
+          version: latest
+
+      - name: Build WASM
+        run: |
+          make wasm_clean
+          make wasm
+
+      - name: Prepare Pages artifact
+        run: |
+          rm -rf _site
+          mkdir -p _site/wasm/latest
+          cp -v wasm/push_swap.js wasm/push_swap.wasm wasm/manifest.json _site/wasm/latest/
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
