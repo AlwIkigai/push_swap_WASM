@@ -37,23 +37,20 @@ void	reverse_rotate(t_stack **stack)
 }
 
 void	reverse_rotate_a(t_stack **stack_a)
-
 {
 	reverse_rotate(stack_a);
-	ft_printf("rra\n");
+	emit_op("rra");
 }
 
 void	reverse_rotate_b(t_stack **stack_b)
-
 {
 	reverse_rotate(stack_b);
-	ft_printf("rrb\n");
+	emit_op("rrb");
 }
 
 void	reverse_rotate_a_and_b(t_stack **stack_a, t_stack **stack_b)
-
 {
 	reverse_rotate(stack_a);
 	reverse_rotate(stack_b);
-	ft_printf("rrr\n");
+	emit_op("rrr");
 }

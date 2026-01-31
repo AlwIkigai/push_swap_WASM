@@ -29,23 +29,20 @@ void	swap(t_stack **stack)
 }
 
 void	swap_a(t_stack **stack_a)
-
 {
 	swap(stack_a);
-	ft_printf("sa\n");
+	emit_op("sa");
 }
 
 void	swap_b(t_stack **stack_b)
-
 {
 	swap(stack_b);
-	ft_printf("sb\n");
+	emit_op("sb");
 }
 
 void	swap_a_and_b(t_stack **stack_a, t_stack **stack_b)
-
 {
 	swap(stack_a);
 	swap(stack_b);
-	ft_printf("ss\n");
+	emit_op("ss");
 }
